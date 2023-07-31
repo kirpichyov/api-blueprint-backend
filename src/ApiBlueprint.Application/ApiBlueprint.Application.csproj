@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentValidation" Version="11.6.0" />
+        <PackageReference Include="Kirpichyov.FriendlyJwt" Version="1.0.7" />
+        <PackageReference Include="MassTransit" Version="8.0.16" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+        <PackageReference Include="OneOf" Version="3.0.255" />
+        <PackageReference Include="Quartz.AspNetCore" Version="3.6.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\ApiBlueprint.Core\ApiBlueprint.Core.csproj" />
+        <ProjectReference Include="..\ApiBlueprint.DataAccess\ApiBlueprint.DataAccess.csproj" />
+    </ItemGroup>
+
+</Project>

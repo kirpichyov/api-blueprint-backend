@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiBlueprint.Api", "ApiBlueprint.Api\ApiBlueprint.Api.csproj", "{335D8A68-2FC4-4228-B1E0-7E658675D516}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiBlueprint.Application", "ApiBlueprint.Application\ApiBlueprint.Application.csproj", "{82220171-4D65-4AA5-B7EC-A4630366BBDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiBlueprint.Core", "ApiBlueprint.Core\ApiBlueprint.Core.csproj", "{F479D8E6-9BAF-45CB-BD86-44CAD8AFB31A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiBlueprint.DataAccess", "ApiBlueprint.DataAccess\ApiBlueprint.DataAccess.csproj", "{1A52FC1D-B7DE-40A8-861C-6A0B15DF543F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiBlueprint.IntegrationTests", "ApiBlueprint.IntegrationTests\ApiBlueprint.IntegrationTests.csproj", "{B0493D73-CED4-404E-B79D-4F973C6F8215}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiBlueprint.Tests.Common", "ApiBlueprint.Tests.Common\ApiBlueprint.Tests.Common.csproj", "{13ACB8CA-3522-4621-98EF-3FF23F9F4C57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiBlueprint.UnitTests", "ApiBlueprint.UnitTests\ApiBlueprint.UnitTests.csproj", "{382749F8-63E2-447D-8797-24C94CAF7CA7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{335D8A68-2FC4-4228-B1E0-7E658675D516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{335D8A68-2FC4-4228-B1E0-7E658675D516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{335D8A68-2FC4-4228-B1E0-7E658675D516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{335D8A68-2FC4-4228-B1E0-7E658675D516}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82220171-4D65-4AA5-B7EC-A4630366BBDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82220171-4D65-4AA5-B7EC-A4630366BBDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82220171-4D65-4AA5-B7EC-A4630366BBDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82220171-4D65-4AA5-B7EC-A4630366BBDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F479D8E6-9BAF-45CB-BD86-44CAD8AFB31A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F479D8E6-9BAF-45CB-BD86-44CAD8AFB31A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F479D8E6-9BAF-45CB-BD86-44CAD8AFB31A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F479D8E6-9BAF-45CB-BD86-44CAD8AFB31A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A52FC1D-B7DE-40A8-861C-6A0B15DF543F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A52FC1D-B7DE-40A8-861C-6A0B15DF543F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A52FC1D-B7DE-40A8-861C-6A0B15DF543F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A52FC1D-B7DE-40A8-861C-6A0B15DF543F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0493D73-CED4-404E-B79D-4F973C6F8215}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0493D73-CED4-404E-B79D-4F973C6F8215}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0493D73-CED4-404E-B79D-4F973C6F8215}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0493D73-CED4-404E-B79D-4F973C6F8215}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13ACB8CA-3522-4621-98EF-3FF23F9F4C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13ACB8CA-3522-4621-98EF-3FF23F9F4C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13ACB8CA-3522-4621-98EF-3FF23F9F4C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13ACB8CA-3522-4621-98EF-3FF23F9F4C57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{382749F8-63E2-447D-8797-24C94CAF7CA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{382749F8-63E2-447D-8797-24C94CAF7CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{382749F8-63E2-447D-8797-24C94CAF7CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{382749F8-63E2-447D-8797-24C94CAF7CA7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
