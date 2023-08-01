@@ -61,4 +61,46 @@ public sealed class ProjectsController : ApiControllerBase
             success => NoContent(),
             notFound => NotFound(notFound.ToApiErrorResponse()));
     }
+
+    [HttpGet("{id:guid}/folders")]
+    [ProducesResponseType(typeof(CreatedFolderResponse[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFolders([FromRoute(Name = "id")] Guid projectId)
+    {
+        var result = await _projectsService.GetFoldersAsync(projectId);
+
+        return result.Match<IActionResult>(
+            response => Ok(response),
+            notFound => NotFound(notFound.ToApiErrorResponse()));
+    }
+
+    [HttpPost("{id:guid}/folders")]
+    [ProducesResponseType(typeof(CreatedFolderResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CreateFolder(
+        [FromRoute(Name = "id")] Guid projectId,
+        [FromBody] CreateFolderRequest request)
+    {
+        var result = await _projectsService.CreateFolderAsync(projectId, request);
+
+        return result.Match<IActionResult>(
+            response => StatusCode(StatusCodes.Status201Created, response),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()),
+            notFound => NotFound(notFound.ToApiErrorResponse()));
+    }
+
+    [HttpDelete("{id:guid}/folders/{folderId:guid}")]
+    [ProducesResponseType(typeof(CreatedFolderResponse), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteFolder(
+        [FromRoute(Name = "id")] Guid projectId,
+        [FromRoute] Guid folderId)
+    {
+        var result = await _projectsService.DeleteFolderAsync(projectId, folderId);
+
+        return result.Match<IActionResult>(
+            response => NoContent(),
+            notFound => NotFound(notFound.ToApiErrorResponse()));
+    }
 }

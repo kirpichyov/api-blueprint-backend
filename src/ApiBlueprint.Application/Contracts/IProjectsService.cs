@@ -14,4 +14,11 @@ public interface IProjectsService
     Task<OneOf<ProjectSummaryResponse, ResourceNotFound>> GetAsync(Guid projectId);
     Task<IReadOnlyCollection<ProjectSummaryResponse>> GetAllForUserAsync();
     Task<OneOf<Success, ResourceNotFound>> DeleteAsync(Guid projectId);
+
+    Task<OneOf<CreatedFolderResponse, ModelValidationFailed, ResourceNotFound>> CreateFolderAsync(
+        Guid projectId,
+        CreateFolderRequest request);
+
+    Task<OneOf<Success, ResourceNotFound>> DeleteFolderAsync(Guid projectId, Guid folderId);
+    Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId);
 }

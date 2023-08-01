@@ -39,6 +39,18 @@ public sealed class ObjectsMapper : IObjectsMapper
         };
     }
 
+    public FolderResponse ToFolderResponse(ProjectFolder folder)
+    {
+        ArgumentNullException.ThrowIfNull(folder, nameof(folder));
+
+        return new FolderResponse()
+        {
+            Id = folder.Id,
+            Name = folder.Name,
+            CreatedAtUtc = folder.CreatedAtUtc,
+        };
+    }
+
     public IReadOnlyCollection<TDestination> MapCollection<TSource, TDestination>(
         IEnumerable<TSource> sources,
         Func<TSource, TDestination> rule)

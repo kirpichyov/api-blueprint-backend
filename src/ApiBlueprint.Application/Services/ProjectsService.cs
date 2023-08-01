@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ApiBlueprint.Application.Contracts;
 using ApiBlueprint.Application.Contracts.Results.Common;
@@ -21,6 +22,7 @@ public sealed class ProjectsService : IProjectsService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateProjectRequest> _createValidator;
+    private readonly IValidator<CreateFolderRequest> _createFolderValidator;
     private readonly ImageGenerationOptions _imageGenerationOptions;
     private readonly IJwtTokenReader _jwtTokenReader;
     private readonly IObjectsMapper _mapper;
@@ -28,12 +30,14 @@ public sealed class ProjectsService : IProjectsService
     public ProjectsService(
         IUnitOfWork unitOfWork,
         IValidator<CreateProjectRequest> createValidator,
+        IValidator<CreateFolderRequest> createFolderValidator,
         IOptions<ImageGenerationOptions> imageGenerationOptions,
         IJwtTokenReader jwtTokenReader,
         IObjectsMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _createValidator = createValidator;
+        _createFolderValidator = createFolderValidator;
         _jwtTokenReader = jwtTokenReader;
         _mapper = mapper;
         _imageGenerationOptions = imageGenerationOptions.Value;
@@ -77,7 +81,6 @@ public sealed class ProjectsService : IProjectsService
 
     public async Task<OneOf<Success, ResourceNotFound>> DeleteAsync(Guid projectId)
     {
-        
         var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
         if (project is null || !project.CanEdit(_jwtTokenReader.GetUserId()))
         {
@@ -88,5 +91,62 @@ public sealed class ProjectsService : IProjectsService
         await _unitOfWork.CommitAsync();
 
         return default(Success);
+    }
+
+    public async Task<OneOf<CreatedFolderResponse, ModelValidationFailed, ResourceNotFound>> CreateFolderAsync(
+        Guid projectId,
+        CreateFolderRequest request)
+    {
+        var validationResult = await _createFolderValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return new ModelValidationFailed(validationResult.Errors);
+        }
+
+        var userId = _jwtTokenReader.GetUserId();
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
+
+        if (project is null || !project.CanEdit(userId))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+
+        project.AddFolder(request.Name);
+        await _unitOfWork.CommitAsync();
+
+        return new CreatedFolderResponse()
+        {
+            Id = project.Id,
+        };
+    }
+
+    public async Task<OneOf<Success, ResourceNotFound>> DeleteFolderAsync(Guid projectId, Guid folderId)
+    {
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
+        if (project is null || !project.CanEdit(_jwtTokenReader.GetUserId()))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+
+        var isFolderRemoved = project.TryRemoveFolder(folderId);
+        if (!isFolderRemoved)
+        {
+            return new ResourceNotFound("Folder");
+        }
+        
+        await _unitOfWork.CommitAsync();
+
+        return default(Success);
+    }
+
+    public async Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId)
+    {
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false);
+        if (project is null || !project.CanEdit(_jwtTokenReader.GetUserId()))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+
+        return project.ProjectFolders.Select(_mapper.ToFolderResponse).ToArray();
     }
 }

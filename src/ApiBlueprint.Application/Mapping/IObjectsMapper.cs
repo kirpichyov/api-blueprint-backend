@@ -10,6 +10,7 @@ public interface IObjectsMapper
 {
     CurrentUserProfileResponse ToCurrentUserProfileResponse(User user);
     ProjectSummaryResponse ToProjectSummaryResponse(Project project);
+    FolderResponse ToFolderResponse(ProjectFolder folder);
 
     IReadOnlyCollection<TDestination> MapCollection<TSource, TDestination>(
         IEnumerable<TSource> sources,

@@ -9,6 +9,7 @@ namespace ApiBlueprint.Core.Models.Entities;
 public sealed class Project : EntityBase<Guid>
 {
     private readonly List<ProjectMember> _projectMembers = new();
+    private readonly List<ProjectFolder> _projectFolders = new();
 
     public Project(string name, string description, string imageUrl, User owner)
         : base(Guid.NewGuid())
@@ -31,6 +32,7 @@ public sealed class Project : EntityBase<Guid>
     public DateTime CreatedAtUtc { get; init; }
     public DateTime UpdatedAtUtc { get; init; }
     public IReadOnlyCollection<ProjectMember> ProjectMembers => _projectMembers;
+    public IReadOnlyCollection<ProjectFolder> ProjectFolders => _projectFolders;
 
     public Result<bool> TryAddAdmin(User user)
     {
@@ -52,6 +54,23 @@ public sealed class Project : EntityBase<Guid>
         }
         
         _projectMembers.Add(new ProjectMember(this, user, role));
+        return true;
+    }
+
+    public void AddFolder(string name)
+    {
+        _projectFolders.Add(new ProjectFolder(name, this));
+    }
+
+    public bool TryRemoveFolder(Guid id)
+    {
+        var folder = _projectFolders.FirstOrDefault(folder => folder.Id == id);
+        if (folder is null)
+        {
+            return false;
+        }
+        
+        _projectFolders.Remove(folder);
         return true;
     }
 

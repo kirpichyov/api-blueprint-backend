@@ -31,6 +31,7 @@ public sealed class ProjectRepository : RepositoryBase<Project>, IProjectReposit
         return Context.Projects
             .WithTracking(withTracking)
             .Include(project => project.ProjectMembers)
+            .Include(project => project.ProjectFolders)
             .FirstOrDefaultAsync(project => project.Id == id);
     }
 }

@@ -14,6 +14,7 @@ public class DatabaseContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectMember> ProjectMembers { get; set; }
+    public DbSet<ProjectFolder> ProjectFolders { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
