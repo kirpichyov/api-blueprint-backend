@@ -52,27 +52,42 @@ public sealed class Project : EntityBase<Guid>
         UpdatedAtUtc = DateTime.UtcNow;
     }
     
-    public Result<bool> TryAddAdmin(User user)
+    public Result<ProjectMember> TryAddAdmin(User user)
     {
         return TryAddMember(user, ProjectMemberRole.Admin);
     }
     
-    public Result<bool> TryAddViewer(User user)
+    public Result<ProjectMember> TryAddViewer(User user)
     {
         return TryAddMember(user, ProjectMemberRole.Viewer);
     }
 
-    private Result<bool> TryAddMember(User user, ProjectMemberRole role)
+    private Result<ProjectMember> TryAddMember(User user, ProjectMemberRole role)
     {
         ArgumentNullException.ThrowIfNull(user, nameof(user));
         
         if (_projectMembers.Any(member => member.UserId == user.Id))
         {
-            return false;
+            return Result.Failure<ProjectMember>("User is already added to the project.");
         }
+
+        var member = new ProjectMember(this, user, role);
+        _projectMembers.Add(member);
+
+        return member;
+    }
+
+    public Result TryRemoveMember(Guid memberId)
+    {
+        var memberToRemove = _projectMembers.FirstOrDefault(member => member.Id == memberId);
         
-        _projectMembers.Add(new ProjectMember(this, user, role));
-        return true;
+        if (memberToRemove is null)
+        {
+            return Result.Failure<ProjectMember>("Member does not exist.");
+        }
+
+        _projectMembers.Remove(memberToRemove);
+        return Result.Success();
     }
 
     public ProjectFolder AddFolder(string name)

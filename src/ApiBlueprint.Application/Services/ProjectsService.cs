@@ -6,8 +6,10 @@ using ApiBlueprint.Application.Contracts;
 using ApiBlueprint.Application.Contracts.Results.Common;
 using ApiBlueprint.Application.Extensions;
 using ApiBlueprint.Application.Mapping;
+using ApiBlueprint.Application.Models.ProjectMembers;
 using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Entities;
+using ApiBlueprint.Core.Models.Enums;
 using ApiBlueprint.Core.Options;
 using ApiBlueprint.DataAccess.Contracts;
 using ApiBlueprint.DataAccess.Contracts.Includes;
@@ -25,6 +27,7 @@ public sealed class ProjectsService : IProjectsService
     private readonly IValidator<CreateProjectRequest> _createValidator;
     private readonly IValidator<CreateFolderRequest> _createFolderValidator;
     private readonly IValidator<UpdateFolderRequest> _updateFolderValidator;
+    private readonly IValidator<AddProjectMemberRequest> _addMemberValidator;
     private readonly ImageGenerationOptions _imageGenerationOptions;
     private readonly IJwtTokenReader _jwtTokenReader;
     private readonly IObjectsMapper _mapper;
@@ -34,6 +37,7 @@ public sealed class ProjectsService : IProjectsService
         IValidator<CreateProjectRequest> createValidator,
         IValidator<CreateFolderRequest> createFolderValidator,
         IValidator<UpdateFolderRequest> updateFolderValidator,
+        IValidator<AddProjectMemberRequest> addMemberValidator,
         IOptions<ImageGenerationOptions> imageGenerationOptions,
         IJwtTokenReader jwtTokenReader,
         IObjectsMapper mapper)
@@ -42,6 +46,7 @@ public sealed class ProjectsService : IProjectsService
         _createValidator = createValidator;
         _createFolderValidator = createFolderValidator;
         _updateFolderValidator = updateFolderValidator;
+        _addMemberValidator = addMemberValidator;
         _jwtTokenReader = jwtTokenReader;
         _mapper = mapper;
         _imageGenerationOptions = imageGenerationOptions.Value;
@@ -254,6 +259,99 @@ public sealed class ProjectsService : IProjectsService
         }
 
         return project.ProjectFolders.Select(_mapper.ToFolderResponse).ToArray();
+    }
+
+    public async Task<OneOf<IReadOnlyCollection<ProjectMemberResponse>, ResourceNotFound>> GetProjectMembersAsync(Guid projectId)
+    {
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false, ProjectIncludes.MembersUser);
+        if (project is null || !project.HasAccess(_jwtTokenReader.GetUserId()))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+
+        return project.ProjectMembers.Select(_mapper.ToProjectMemberResponse).ToArray();
+    }
+
+    public async Task<OneOf<ProjectMemberResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed, ConflictResult>> AddProjectMemberAsync(
+        Guid projectId,
+        AddProjectMemberRequest request)
+    {
+        var validationResult = await _addMemberValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return new ModelValidationFailed(validationResult.Errors);
+        }
+        
+        var userId = _jwtTokenReader.GetUserId();
+
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true, ProjectIncludes.MembersUser);
+        if (project is null || !project.HasAccess(userId))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+
+        var userAsMember = project.ProjectMembers.First(member => member.UserId == userId);
+        
+        if (userAsMember.Role is not ProjectMemberRole.Owner)
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
+
+        var userToAdd = await _unitOfWork.Users.TryGet(request.UserEmail, withTracking: true);
+        if (userToAdd is null)
+        {
+            return new ResourceNotFound(nameof(User));
+        }
+
+        var newMemberResult = request.Role!.Value switch
+        {
+            ProjectMemberRoleModel.Viewer => project.TryAddViewer(userToAdd),
+            ProjectMemberRoleModel.Admin => project.TryAddAdmin(userToAdd),
+            _ => throw new ArgumentException("Value is unexpected.", nameof(request.Role.Value)),
+        };
+
+        if (newMemberResult.IsFailure)
+        {
+            return new ConflictResult(newMemberResult.Error);
+        }
+
+        await _unitOfWork.CommitAsync();
+
+        return _mapper.ToProjectMemberResponse(newMemberResult.Value);
+    }
+
+    public async Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> RemoveProjectMemberAsync(Guid projectId, Guid memberId)
+    {
+        var userId = _jwtTokenReader.GetUserId();
+
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true, ProjectIncludes.MembersUser);
+        if (project is null || !project.HasAccess(userId))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+
+        var userAsMember = project.ProjectMembers.First(member => member.UserId == userId);
+        var memberToRemove = project.ProjectMembers.FirstOrDefault(member => member.Id == memberId);
+        
+        if (userAsMember.Role is not ProjectMemberRole.Owner)
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
+
+        if (memberToRemove is null)
+        {
+            return new ResourceNotFound("Project member");
+        }
+        
+        if (memberToRemove.UserId == userId)
+        {
+            return new FlowValidationFailed("Self deletion is not supported.");
+        }
+
+        project.TryRemoveMember(memberId);
+        await _unitOfWork.CommitAsync();
+
+        return default(Success);
     }
 
     private string GenerateProjectImageUrl()

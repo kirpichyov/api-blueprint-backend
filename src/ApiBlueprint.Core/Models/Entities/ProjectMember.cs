@@ -6,7 +6,6 @@ namespace ApiBlueprint.Core.Models.Entities;
 public sealed class ProjectMember : EntityBase<Guid>
 {
     public ProjectMember(Project project, User user, ProjectMemberRole role)
-        : base(Guid.NewGuid())
     {
         Project = project;
         ProjectId = project.Id;

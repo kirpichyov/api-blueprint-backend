@@ -6,5 +6,6 @@ namespace ApiBlueprint.DataAccess.Contracts.Includes;
 public enum ProjectIncludes
 {
     Default,
-    Endpoints
+    Endpoints,
+    MembersUser,
 }

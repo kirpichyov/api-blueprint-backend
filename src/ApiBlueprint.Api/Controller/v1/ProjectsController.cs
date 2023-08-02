@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ApiBlueprint.Application.Contracts;
 using ApiBlueprint.Application.Extensions;
+using ApiBlueprint.Application.Models.ProjectMembers;
 using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Api;
 using Microsoft.AspNetCore.Http;
@@ -111,5 +112,52 @@ public sealed class ProjectsController : ApiControllerBase
     {
         var result = await _projectsService.GetProjectAccessInfoAsync(projectId);
         return Ok(result);
+    }
+
+    [HttpGet("{id:guid}/members")]
+    [ProducesResponseType(typeof(ProjectMemberResponse[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProjectMembers([FromRoute(Name = "id")] Guid projectId)
+    {
+        var result = await _projectsService.GetProjectMembersAsync(projectId);
+
+        return result.Match<IActionResult>(
+            response => Ok(response),
+            notFound => NotFound(notFound.ToApiErrorResponse()));
+    }
+
+    [HttpPost("{id:guid}/members")]
+    [ProducesResponseType(typeof(ProjectMemberResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> AddProjectMember(
+        [FromRoute(Name = "id")] Guid projectId,
+        [FromBody] AddProjectMemberRequest request)
+    {
+        var result = await _projectsService.AddProjectMemberAsync(projectId, request);
+
+        return result.Match<IActionResult>(
+            response => StatusCode(StatusCodes.Status201Created, response),
+            modelValidationFailed => BadRequest(modelValidationFailed.ToApiErrorResponse()),
+            notFound => NotFound(notFound.ToApiErrorResponse()),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()),
+            conflict => Conflict(conflict.ToApiErrorResponse()));
+    }
+
+    [HttpDelete("{id:guid}/members/{memberId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RemoveProjectMember(
+        [FromRoute(Name = "id")] Guid projectId,
+        [FromRoute] Guid memberId)
+    {
+        var result = await _projectsService.RemoveProjectMemberAsync(projectId, memberId);
+
+        return result.Match<IActionResult>(
+            response => NoContent(),
+            notFound => NotFound(notFound.ToApiErrorResponse()),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }
 }

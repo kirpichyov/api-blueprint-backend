@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ApiBlueprint.Application.Models.Endpoints;
 using ApiBlueprint.Application.Models.Profile;
+using ApiBlueprint.Application.Models.ProjectMembers;
 using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Entities;
 
@@ -14,6 +15,7 @@ public interface IObjectsMapper
     FolderSummaryResponse ToFolderSummaryResponse(ProjectFolder folder);
     FolderResponse ToFolderResponse(ProjectFolder folder);
     EndpointResponse ToEndpointResponse(Endpoint endpoint);
+    ProjectMemberResponse ToProjectMemberResponse(ProjectMember member);
 
     IReadOnlyCollection<TDestination> MapCollection<TSource, TDestination>(
         IEnumerable<TSource> sources,

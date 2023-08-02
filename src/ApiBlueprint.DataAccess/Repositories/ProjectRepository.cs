@@ -42,6 +42,13 @@ public sealed class ProjectRepository : RepositoryBase<Project>, IProjectReposit
                 .ThenInclude(folder => folder.Endpoints);
         }
         
+        if (includes.HasFlag(ProjectIncludes.MembersUser))
+        {
+            queryBase = queryBase
+                .Include(project => project.ProjectMembers)
+                .ThenInclude(folder => folder.User);
+        }
+        
         return queryBase.FirstOrDefaultAsync(project => project.Id == id);
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApiBlueprint.Application.Contracts.Results.Common;
+using ApiBlueprint.Application.Models.ProjectMembers;
 using ApiBlueprint.Application.Models.Projects;
 using OneOf;
 using OneOf.Types;
@@ -23,6 +24,12 @@ public interface IProjectsService
 
     Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(Guid folderId, UpdateFolderRequest request);
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteFolderAsync(Guid folderId);
-    
     Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId);
+
+    Task<OneOf<IReadOnlyCollection<ProjectMemberResponse>, ResourceNotFound>> GetProjectMembersAsync(Guid projectId);
+    Task<OneOf<ProjectMemberResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed, ConflictResult>> AddProjectMemberAsync(
+        Guid projectId,
+        AddProjectMemberRequest request);
+
+    Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> RemoveProjectMemberAsync(Guid projectId, Guid memberId);
 }

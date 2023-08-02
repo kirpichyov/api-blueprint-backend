@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiBlueprint.Application.Models;
 using ApiBlueprint.Application.Models.Endpoints;
 using ApiBlueprint.Application.Models.Profile;
+using ApiBlueprint.Application.Models.ProjectMembers;
 using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Entities;
 using ApiBlueprint.Core.Models.ValueObjects;
@@ -90,6 +92,26 @@ public sealed class ObjectsMapper : IObjectsMapper
             Title = endpoint.Title,
             Request = ToEndpointDataModel(requestContract),
             Response = ToEndpointDataModel(responseContract),
+        };
+    }
+
+    public ProjectMemberResponse ToProjectMemberResponse(ProjectMember member)
+    {
+        ArgumentNullException.ThrowIfNull(member, nameof(member));
+        ArgumentNullException.ThrowIfNull(member.User, nameof(member.User));
+
+        return new ProjectMemberResponse()
+        {
+            MemberId = member.Id,
+            Role = member.Role,
+            User = new UserModel()
+            {
+                Id = member.UserId,
+                Email = member.User.Email,
+                Firstname = member.User.Firstname,
+                Lastname = member.User.Lastname,
+                Fullname = $"{member.User.Firstname} {member.User.Lastname}",
+            },
         };
     }
 

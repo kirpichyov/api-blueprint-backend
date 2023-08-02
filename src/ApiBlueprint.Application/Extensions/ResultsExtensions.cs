@@ -26,4 +26,9 @@ public static class ResultsExtensions
     {
         return new ApiErrorResponse(ExceptionsInfo.Identifiers.ValidationFailed, new ApiErrorResponseNode(null, result.Message));
     }
+
+    public static ApiErrorResponse ToApiErrorResponse(this ConflictResult result)
+    {
+        return new ApiErrorResponse(ExceptionsInfo.Identifiers.ValidationFailed, new ApiErrorResponseNode(null, result.Message));
+    }
 }
