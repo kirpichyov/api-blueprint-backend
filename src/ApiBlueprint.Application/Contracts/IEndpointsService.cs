@@ -14,7 +14,6 @@ public interface IEndpointsService
         Guid folderId,
         CreateEndpointRequest request);
 
-    Task<OneOf<IReadOnlyCollection<EndpointSummaryResponse>, ResourceNotFound, FlowValidationFailed>> GetSummariesAsync(Guid folderId);
     Task<OneOf<EndpointResponse, ResourceNotFound, FlowValidationFailed>> GetAsync(Guid endpointId);
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid endpointId);
 }

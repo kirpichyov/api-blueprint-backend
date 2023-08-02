@@ -66,17 +66,4 @@ public sealed class FoldersController : ApiControllerBase
             notFound => NotFound(notFound.ToApiErrorResponse()),
             validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }
-    
-    [HttpGet("{id:guid}/endpoints/summary")]
-    [ProducesResponseType(typeof(EndpointSummaryResponse[]), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetSummaries([FromRoute(Name = "id")] Guid folderId)
-    {
-        var result = await _endpointsService.GetSummariesAsync(folderId);
-
-        return result.Match<IActionResult>(
-            summary => Ok(summary),
-            notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
-    }
 }

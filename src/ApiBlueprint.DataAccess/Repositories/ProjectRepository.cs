@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ApiBlueprint.Core.Models.Entities;
 using ApiBlueprint.DataAccess.Connection;
 using ApiBlueprint.DataAccess.Contracts;
+using ApiBlueprint.DataAccess.Contracts.Includes;
 using ApiBlueprint.DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,13 +27,22 @@ public sealed class ProjectRepository : RepositoryBase<Project>, IProjectReposit
             .ToArrayAsync();
     }
 
-    public Task<Project> TryGet(Guid id, bool withTracking)
+    public Task<Project> TryGet(Guid id, bool withTracking, ProjectIncludes includes)
     {
-        return Context.Projects
+        var queryBase = Context.Projects
             .WithTracking(withTracking)
             .Include(project => project.ProjectMembers)
             .Include(project => project.ProjectFolders)
-            .FirstOrDefaultAsync(project => project.Id == id);
+            .AsQueryable();
+
+        if (includes.HasFlag(ProjectIncludes.Endpoints))
+        {
+            queryBase = queryBase
+                .Include(project => project.ProjectFolders)
+                .ThenInclude(folder => folder.Endpoints);
+        }
+        
+        return queryBase.FirstOrDefaultAsync(project => project.Id == id);
     }
 
     public Task<ProjectFolder> TryGetFolder(Guid folderId, bool withTracking)

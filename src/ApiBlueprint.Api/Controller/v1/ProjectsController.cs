@@ -94,7 +94,7 @@ public sealed class ProjectsController : ApiControllerBase
     }
     
     [HttpGet("{id:guid}/folders")]
-    [ProducesResponseType(typeof(FolderSummaryResponse[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FolderResponse[]), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFolders([FromRoute(Name = "id")] Guid projectId)
     {

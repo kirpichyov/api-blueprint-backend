@@ -52,24 +52,33 @@ public sealed class ObjectsMapper : IObjectsMapper
         };
     }
 
+    public FolderResponse ToFolderResponse(ProjectFolder folder)
+    {
+        ArgumentNullException.ThrowIfNull(folder, nameof(folder));
+        
+        return new FolderResponse()
+        {
+            Id = folder.Id,
+            Name = folder.Name,
+            CreatedAtUtc = folder.CreatedAtUtc,
+            Endpoints = folder?.Endpoints
+                .OrderBy(endpoint => endpoint.CreatedAtUtc)
+                .Select(endpoint => new FolderEndpointModel()
+                {
+                    Id = endpoint.Id,
+                    Method = endpoint.Method,
+                    Path = endpoint.Path,
+                    Title = endpoint.Title,
+                })
+                .ToArray(),
+        };
+    }
+
     public EndpointResponse ToEndpointResponse(Endpoint endpoint)
     {
         ArgumentNullException.ThrowIfNull(endpoint, nameof(endpoint));
 
         return new EndpointResponse()
-        {
-            Id = endpoint.Id,
-            Method = endpoint.Method,
-            Path = endpoint.Path,
-            Title = endpoint.Title,
-        };
-    }
-
-    public EndpointSummaryResponse ToEndpointSummaryResponse(Endpoint endpoint)
-    {
-        ArgumentNullException.ThrowIfNull(endpoint, nameof(endpoint));
-
-        return new EndpointSummaryResponse()
         {
             Id = endpoint.Id,
             Method = endpoint.Method,

@@ -70,24 +70,6 @@ public sealed class EndpointsService : IEndpointsService
         return _mapper.ToEndpointResponse(endpoint);
     }
 
-    public async Task<OneOf<IReadOnlyCollection<EndpointSummaryResponse>, ResourceNotFound, FlowValidationFailed>> GetSummariesAsync(Guid folderId)
-    {
-        var userId = _jwtTokenReader.GetUserId();
-        
-        var folder = await _unitOfWork.Projects.TryGetFolder(folderId, withTracking: false);
-        if (folder is null || !folder.Project.HasAccess(userId))
-        {
-            return new ResourceNotFound(nameof(Endpoint));
-        }
-
-        if (!folder.Project.CanEdit(userId))
-        {
-            return new FlowValidationFailed("Access level is low.");
-        }
-
-        return folder.Endpoints.Select(_mapper.ToEndpointSummaryResponse).ToArray();
-    }
-
     public async Task<OneOf<EndpointResponse, ResourceNotFound, FlowValidationFailed>> GetAsync(Guid endpointId)
     {
         var userId = _jwtTokenReader.GetUserId();

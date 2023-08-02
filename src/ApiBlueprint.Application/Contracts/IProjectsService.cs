@@ -23,5 +23,5 @@ public interface IProjectsService
     Task<OneOf<FolderSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(Guid folderId, UpdateFolderRequest request);
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteFolderAsync(Guid folderId);
     
-    Task<OneOf<IReadOnlyCollection<FolderSummaryResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId);
+    Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId);
 }

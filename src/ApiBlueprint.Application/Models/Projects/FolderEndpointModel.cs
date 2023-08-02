@@ -1,9 +1,9 @@
 ﻿using System;
 using ApiBlueprint.Core.Models.Enums;
 
-namespace ApiBlueprint.Application.Models.Endpoints;
+namespace ApiBlueprint.Application.Models.Projects;
 
-public sealed record EndpointSummaryResponse
+public sealed record FolderEndpointModel
 {
     public Guid Id { get; init; }
     public string Title { get; init; }

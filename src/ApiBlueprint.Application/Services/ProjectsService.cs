@@ -10,6 +10,7 @@ using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Entities;
 using ApiBlueprint.Core.Options;
 using ApiBlueprint.DataAccess.Contracts;
+using ApiBlueprint.DataAccess.Contracts.Includes;
 using FluentValidation;
 using Kirpichyov.FriendlyJwt.Contracts;
 using Microsoft.Extensions.Options;
@@ -207,17 +208,17 @@ public sealed class ProjectsService : IProjectsService
         return default(Success);
     }
 
-    public async Task<OneOf<IReadOnlyCollection<FolderSummaryResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId)
+    public async Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId)
     {
         var userId = _jwtTokenReader.GetUserId();
         
-        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false);
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false, ProjectIncludes.Endpoints);
         if (project is null || !project.HasAccess(userId))
         {
             return new ResourceNotFound(nameof(Project));
         }
 
-        return project.ProjectFolders.Select(_mapper.ToFolderSummaryResponse).ToArray();
+        return project.ProjectFolders.Select(_mapper.ToFolderResponse).ToArray();
     }
 
     private string GenerateProjectImageUrl()
