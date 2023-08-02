@@ -79,24 +79,17 @@ public sealed class ObjectsMapper : IObjectsMapper
     {
         ArgumentNullException.ThrowIfNull(endpoint, nameof(endpoint));
 
+        var requestContract = endpoint.GetRequestContract();
+        var responseContract = endpoint.GetResponseContract();
+        
         return new EndpointResponse()
         {
             Id = endpoint.Id,
             Method = endpoint.Method,
             Path = endpoint.Path,
             Title = endpoint.Title,
-            Request = new EndpointDataModel()
-            {
-                Parameters = endpoint.RequestParameters
-                    .Select(ToEndpointParameterModel)
-                    .ToArray(),
-            },
-            Response = new EndpointDataModel()
-            {
-                Parameters = endpoint.ResponseParameters
-                    .Select(ToEndpointParameterModel)
-                    .ToArray(),
-            }
+            Request = ToEndpointDataModel(requestContract),
+            Response = ToEndpointDataModel(responseContract),
         };
     }
 
@@ -118,6 +111,21 @@ public sealed class ObjectsMapper : IObjectsMapper
             In = parameter.In,
             DataType = parameter.DataType,
             CreatedAtUtc = parameter.CreatedAtUtc,
+        };
+    }
+
+    private static EndpointDataModel ToEndpointDataModel(EndpointContract contract)
+    {
+        ArgumentNullException.ThrowIfNull(contract, nameof(contract));
+
+        return new EndpointDataModel()
+        {
+            Parameters = contract.Parameters
+                .Select(ToEndpointParameterModel)
+                .ToArray(),
+            ContentType = contract.ContentType,
+            StatusCode = contract.StatusCode,
+            ContentJson = contract.GetBodyObject(),
         };
     }
 }

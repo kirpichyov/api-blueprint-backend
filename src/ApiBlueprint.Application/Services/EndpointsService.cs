@@ -140,19 +140,25 @@ public sealed class EndpointsService : IEndpointsService
                 DataType = parameter.DataType,
                 CreatedAtUtc = DateTime.UtcNow,
             }).ToArray();
-        
+
         switch (httpDirection)
         {
             case HttpDirection.Request:
-                endpoint.SetRequestParameters(parameters);
+                var requestContract = endpoint.GetRequestContract();
+                requestContract.SetParameters(parameters);
+                requestContract.SetBody(request.ContentType, request.StatusCode, request.ContentJson);
+                endpoint.SetRequestContract(requestContract);
                 break;
             case HttpDirection.Response:
-                endpoint.SetResponseParameters(parameters);
+                var responseContract = endpoint.GetResponseContract();
+                responseContract.SetParameters(parameters);
+                responseContract.SetBody(request.ContentType, request.StatusCode, request.ContentJson);
+                endpoint.SetResponseContract(responseContract);
                 break;
             default:
                 throw new ArgumentException("Value is unexpected.", nameof(httpDirection));
         }
-        
+
         await _unitOfWork.CommitAsync();
 
         return _mapper.ToEndpointResponse(endpoint);

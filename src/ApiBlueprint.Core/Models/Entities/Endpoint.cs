@@ -7,9 +7,6 @@ namespace ApiBlueprint.Core.Models.Entities;
 
 public sealed class Endpoint : EntityBase<Guid>
 {
-    private EndpointParameter[] _requestParameters;
-    private EndpointParameter[] _responseParameters;
-    
     public Endpoint(
         string title,
         string path,
@@ -23,8 +20,8 @@ public sealed class Endpoint : EntityBase<Guid>
         ProjectFolder = projectFolder;
         CreatedAtUtc = DateTime.UtcNow;
         UpdatedAtUtc = DateTime.UtcNow;
-        RequestParametersJson = "[]";
-        ResponseParametersJson = "[]";
+        RequestContractJson = JsonSerializer.Serialize(GetDefaultContract());
+        ResponseContractJson = JsonSerializer.Serialize(GetDefaultContract(statusCode: 200));
     }
 
     public Endpoint()
@@ -39,27 +36,22 @@ public sealed class Endpoint : EntityBase<Guid>
     
     public DateTime CreatedAtUtc { get; }
     public DateTime UpdatedAtUtc { get; private set; }
-    
-    public string RequestParametersJson { get; private set; }
-    public string ResponseParametersJson { get; private set; }
 
-    public EndpointParameter[] RequestParameters =>
-        _requestParameters ??= JsonSerializer.Deserialize<EndpointParameter[]>(RequestParametersJson);
+    public string RequestContractJson { get; private set; }
+    public string ResponseContractJson { get; private set; }
 
-    public EndpointParameter[] ResponseParameters =>
-        _responseParameters ??= JsonSerializer.Deserialize<EndpointParameter[]>(ResponseParametersJson);
+    public EndpointContract GetRequestContract() => JsonSerializer.Deserialize<EndpointContract>(RequestContractJson);
+    public EndpointContract GetResponseContract() => JsonSerializer.Deserialize<EndpointContract>(ResponseContractJson);
 
-    public void SetRequestParameters(EndpointParameter[] parameters)
+    public void SetRequestContract(EndpointContract contract)
     {
-        RequestParametersJson = JsonSerializer.Serialize(parameters);
-        _requestParameters = parameters;
+        RequestContractJson = JsonSerializer.Serialize(contract);
         UpdatedAtUtc = DateTime.UtcNow;
     }
     
-    public void SetResponseParameters(EndpointParameter[] parameters)
+    public void SetResponseContract(EndpointContract contract)
     {
-        ResponseParametersJson = JsonSerializer.Serialize(parameters);
-        _responseParameters = parameters;
+        ResponseContractJson = JsonSerializer.Serialize(contract);
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
@@ -80,4 +72,10 @@ public sealed class Endpoint : EntityBase<Guid>
         Method = method;
         UpdatedAtUtc = DateTime.UtcNow;
     }
+
+    private static EndpointContract GetDefaultContract(int? statusCode = null)
+    {
+        var contract = new EndpointContract(Array.Empty<EndpointParameter>(), "{}", "application/json", statusCode);
+        return contract;
+    } 
 }

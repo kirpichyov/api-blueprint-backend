@@ -17,7 +17,7 @@ public interface IProjectsService
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid projectId);
     Task<ProjectAccessInfoResponse> GetProjectAccessInfoAsync(Guid projectId);
 
-    Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
+    Task<OneOf<FolderResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
         Guid projectId,
         CreateFolderRequest request);
 

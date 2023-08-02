@@ -77,7 +77,7 @@ public sealed class ProjectsController : ApiControllerBase
     }
 
     [HttpPost("{id:guid}/folders")]
-    [ProducesResponseType(typeof(FolderSummaryResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(FolderResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateFolder(

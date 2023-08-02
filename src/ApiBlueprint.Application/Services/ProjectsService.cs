@@ -159,7 +159,7 @@ public sealed class ProjectsService : IProjectsService
         };
     }
 
-    public async Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
+    public async Task<OneOf<FolderResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
         Guid projectId,
         CreateFolderRequest request)
     {
@@ -185,7 +185,7 @@ public sealed class ProjectsService : IProjectsService
         var folder = project.AddFolder(request.Name);
         await _unitOfWork.CommitAsync();
 
-        return _mapper.ToFolderSummaryResponse(folder);
+        return _mapper.ToFolderResponse(folder);
     }
 
     public async Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(
