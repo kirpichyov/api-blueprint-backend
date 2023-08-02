@@ -9,4 +9,7 @@ public sealed record EndpointResponse
     public string Title { get; init; }
     public string Path { get; init; }
     public EndpointMethod? Method { get; init; }
+    
+    public EndpointDataModel Request { get; init; }
+    public EndpointDataModel Response { get; init; }
 }

@@ -6,6 +6,7 @@ using ApiBlueprint.Application.Models.Endpoints;
 using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Api;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiBlueprint.Api.Controller.v1;
@@ -34,7 +35,7 @@ public sealed class FoldersController : ApiControllerBase
         return result.Match<IActionResult>(
             response => NoContent(),
             notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }
     
     [HttpPut("{id:guid}")]
@@ -46,8 +47,9 @@ public sealed class FoldersController : ApiControllerBase
 
         return result.Match<IActionResult>(
             response => Ok(response),
+            modelValidationFailed =>  BadRequest(modelValidationFailed.ToApiErrorResponse()),
             notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }
 
     [HttpPost("{id:guid}/endpoints")]

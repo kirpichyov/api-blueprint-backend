@@ -61,7 +61,7 @@ public sealed class ProjectsController : ApiControllerBase
         return result.Match<IActionResult>(
             response => Ok(response),
             notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }
 
     [HttpDelete("{id:guid}")]
@@ -73,7 +73,7 @@ public sealed class ProjectsController : ApiControllerBase
         return result.Match<IActionResult>(
             success => NoContent(),
             notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }
 
     [HttpPost("{id:guid}/folders")]
@@ -90,7 +90,7 @@ public sealed class ProjectsController : ApiControllerBase
             response => StatusCode(StatusCodes.Status201Created, response),
             modelValidationFailed => BadRequest(modelValidationFailed.ToApiErrorResponse()),
             notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }
     
     [HttpGet("{id:guid}/folders")]

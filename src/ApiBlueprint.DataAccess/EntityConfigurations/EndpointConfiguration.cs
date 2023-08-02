@@ -16,6 +16,11 @@ public sealed class EndpointConfiguration : EntityConfigurationBase<Endpoint, Gu
         builder.Property(endpoint => endpoint.Path).IsRequired();
         builder.Property(endpoint => endpoint.CreatedAtUtc).IsRequired();
         builder.Property(endpoint => endpoint.UpdatedAtUtc).IsRequired();
+        builder.Property(endpoint => endpoint.RequestParametersJson).IsRequired();
+        builder.Property(endpoint => endpoint.ResponseParametersJson).IsRequired();
+
+        builder.Ignore(endpoint => endpoint.RequestParameters);
+        builder.Ignore(endpoint => endpoint.ResponseParameters);
 
         builder.Property(endpoint => endpoint.Method)
             .HasConversion(@enum => @enum.ToStringFast(), @string => ParseEndpointMethod(@string))

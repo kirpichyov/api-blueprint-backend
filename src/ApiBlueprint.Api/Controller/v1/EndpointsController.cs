@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ApiBlueprint.Application.Contracts;
+using ApiBlueprint.Application.Contracts.Arguments;
 using ApiBlueprint.Application.Extensions;
 using ApiBlueprint.Application.Models.Endpoints;
 using ApiBlueprint.Core.Models.Api;
@@ -41,6 +42,57 @@ public sealed class EndpointsController : ApiControllerBase
 
         return result.Match<IActionResult>(
             success => NoContent(),
+            notFound => NotFound(notFound.ToApiErrorResponse()),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
+    }
+
+    [HttpPut("{id:guid}/general-info")]
+    [ProducesResponseType(typeof(EndpointResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateEndpoint(
+        [FromRoute(Name = "id")] Guid endpointId,
+        [FromBody] UpdateEndpointGeneralInfoRequest request)
+    {
+        var result = await _endpointsService.UpdateGeneralInfoAsync(endpointId, request);
+
+        return result.Match<IActionResult>(
+            response => Ok(response),
+            modelValidationFailed => BadRequest(modelValidationFailed.ToApiErrorResponse()),
+            notFound => NotFound(notFound.ToApiErrorResponse()),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
+    }
+
+    [HttpPut("{id:guid}/request")]
+    [ProducesResponseType(typeof(EndpointResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateEndpointRequest(
+        [FromRoute(Name = "id")] Guid endpointId,
+        [FromBody] UpdateEndpointContractRequest request)
+    {
+        var result = await _endpointsService.UpdateContractAsync(endpointId, request, HttpDirection.Request);
+
+        return result.Match<IActionResult>(
+            response => Ok(response),
+            modelValidationFailed => BadRequest(modelValidationFailed.ToApiErrorResponse()),
+            notFound => NotFound(notFound.ToApiErrorResponse()),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
+    }
+    
+    [HttpPut("{id:guid}/response")]
+    [ProducesResponseType(typeof(EndpointResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateEndpointResponse(
+        [FromRoute(Name = "id")] Guid endpointId,
+        [FromBody] UpdateEndpointContractRequest request)
+    {
+        var result = await _endpointsService.UpdateContractAsync(endpointId, request, HttpDirection.Response);
+
+        return result.Match<IActionResult>(
+            response => Ok(response),
+            modelValidationFailed => BadRequest(modelValidationFailed.ToApiErrorResponse()),
             notFound => NotFound(notFound.ToApiErrorResponse()),
             validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
     }

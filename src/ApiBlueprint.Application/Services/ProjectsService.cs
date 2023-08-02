@@ -24,6 +24,7 @@ public sealed class ProjectsService : IProjectsService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateProjectRequest> _createValidator;
     private readonly IValidator<CreateFolderRequest> _createFolderValidator;
+    private readonly IValidator<UpdateFolderRequest> _updateFolderValidator;
     private readonly ImageGenerationOptions _imageGenerationOptions;
     private readonly IJwtTokenReader _jwtTokenReader;
     private readonly IObjectsMapper _mapper;
@@ -32,6 +33,7 @@ public sealed class ProjectsService : IProjectsService
         IUnitOfWork unitOfWork,
         IValidator<CreateProjectRequest> createValidator,
         IValidator<CreateFolderRequest> createFolderValidator,
+        IValidator<UpdateFolderRequest> updateFolderValidator,
         IOptions<ImageGenerationOptions> imageGenerationOptions,
         IJwtTokenReader jwtTokenReader,
         IObjectsMapper mapper)
@@ -39,6 +41,7 @@ public sealed class ProjectsService : IProjectsService
         _unitOfWork = unitOfWork;
         _createValidator = createValidator;
         _createFolderValidator = createFolderValidator;
+        _updateFolderValidator = updateFolderValidator;
         _jwtTokenReader = jwtTokenReader;
         _mapper = mapper;
         _imageGenerationOptions = imageGenerationOptions.Value;
@@ -185,10 +188,16 @@ public sealed class ProjectsService : IProjectsService
         return _mapper.ToFolderSummaryResponse(folder);
     }
 
-    public async Task<OneOf<FolderSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(
+    public async Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(
         Guid folderId,
         UpdateFolderRequest request)
     {
+        var validationResult = await _updateFolderValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return new ModelValidationFailed(validationResult.Errors);
+        }
+
         var userId = _jwtTokenReader.GetUserId();
         
         var folder = await _unitOfWork.Projects.TryGetFolder(folderId, withTracking: true);

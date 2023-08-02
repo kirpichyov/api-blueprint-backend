@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiBlueprint.Application.Contracts;
+using ApiBlueprint.Application.Contracts.Arguments;
 using ApiBlueprint.Application.Contracts.Results.Common;
 using ApiBlueprint.Application.Extensions;
 using ApiBlueprint.Application.Mapping;
 using ApiBlueprint.Application.Models.Endpoints;
 using ApiBlueprint.Core.Models.Entities;
+using ApiBlueprint.Core.Models.ValueObjects;
 using ApiBlueprint.DataAccess.Contracts;
 using FluentValidation;
 using Kirpichyov.FriendlyJwt.Contracts;
@@ -20,17 +21,23 @@ public sealed class EndpointsService : IEndpointsService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateEndpointRequest> _createValidator;
+    private readonly IValidator<UpdateEndpointGeneralInfoRequest> _updateGeneralValidator;
+    private readonly IValidator<UpdateEndpointContractRequest> _updateContractValidator;
     private readonly IJwtTokenReader _jwtTokenReader;
     private readonly IObjectsMapper _mapper;
 
     public EndpointsService(
         IUnitOfWork unitOfWork,
         IValidator<CreateEndpointRequest> createValidator,
+        IValidator<UpdateEndpointGeneralInfoRequest> updateGeneralValidator,
+        IValidator<UpdateEndpointContractRequest> updateContractValidator,
         IJwtTokenReader jwtTokenReader,
         IObjectsMapper mapper)
     {
         _unitOfWork = unitOfWork;
         _createValidator = createValidator;
+        _updateGeneralValidator = updateGeneralValidator;
+        _updateContractValidator = updateContractValidator;
         _jwtTokenReader = jwtTokenReader;
         _mapper = mapper;
     }
@@ -65,6 +72,87 @@ public sealed class EndpointsService : IEndpointsService
             folder);
 
         folder.AddEndpoint(endpoint);
+        await _unitOfWork.CommitAsync();
+
+        return _mapper.ToEndpointResponse(endpoint);
+    }
+
+    public async Task<OneOf<EndpointResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateGeneralInfoAsync(Guid endpointId, UpdateEndpointGeneralInfoRequest request)
+    {
+        var validationResult = await _updateGeneralValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return new ModelValidationFailed(validationResult.Errors);
+        }
+        
+        var userId = _jwtTokenReader.GetUserId();
+        
+        var endpoint = await _unitOfWork.Endpoints.TryGet(endpointId, withTracking: true);
+        if (endpoint is null || !endpoint.ProjectFolder.Project.HasAccess(userId))
+        {
+            return new ResourceNotFound(nameof(Endpoint));
+        }
+
+        if (!endpoint.ProjectFolder.Project.CanEdit(userId))
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
+
+        endpoint.SetTitle(request.Title);
+        endpoint.SetPath(request.Path);
+        endpoint.SetMethod(request.Method!.Value);
+        
+        await _unitOfWork.CommitAsync();
+
+        return _mapper.ToEndpointResponse(endpoint);
+    }
+
+    public async Task<OneOf<EndpointResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateContractAsync(
+        Guid endpointId,
+        UpdateEndpointContractRequest request,
+        HttpDirection httpDirection)
+    {
+        var validationResult = await _updateContractValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return new ModelValidationFailed(validationResult.Errors);
+        }
+
+        var userId = _jwtTokenReader.GetUserId();
+        
+        var endpoint = await _unitOfWork.Endpoints.TryGet(endpointId, withTracking: true);
+        if (endpoint is null || !endpoint.ProjectFolder.Project.HasAccess(userId))
+        {
+            return new ResourceNotFound(nameof(Endpoint));
+        }
+
+        if (!endpoint.ProjectFolder.Project.CanEdit(userId))
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
+
+        var parameters = request.Parameters
+            .Select(parameter => new EndpointParameter()
+            {
+                Name = parameter.Name,
+                In = parameter.In!.Value,
+                Notes = parameter.Notes,
+                DataType = parameter.DataType,
+                CreatedAtUtc = DateTime.UtcNow,
+            }).ToArray();
+        
+        switch (httpDirection)
+        {
+            case HttpDirection.Request:
+                endpoint.SetRequestParameters(parameters);
+                break;
+            case HttpDirection.Response:
+                endpoint.SetResponseParameters(parameters);
+                break;
+            default:
+                throw new ArgumentException("Value is unexpected.", nameof(httpDirection));
+        }
+        
         await _unitOfWork.CommitAsync();
 
         return _mapper.ToEndpointResponse(endpoint);

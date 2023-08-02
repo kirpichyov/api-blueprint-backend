@@ -5,6 +5,7 @@ using ApiBlueprint.Application.Models.Endpoints;
 using ApiBlueprint.Application.Models.Profile;
 using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Entities;
+using ApiBlueprint.Core.Models.ValueObjects;
 
 namespace ApiBlueprint.Application.Mapping;
 
@@ -84,6 +85,18 @@ public sealed class ObjectsMapper : IObjectsMapper
             Method = endpoint.Method,
             Path = endpoint.Path,
             Title = endpoint.Title,
+            Request = new EndpointDataModel()
+            {
+                Parameters = endpoint.RequestParameters
+                    .Select(ToEndpointParameterModel)
+                    .ToArray(),
+            },
+            Response = new EndpointDataModel()
+            {
+                Parameters = endpoint.ResponseParameters
+                    .Select(ToEndpointParameterModel)
+                    .ToArray(),
+            }
         };
     }
 
@@ -92,5 +105,19 @@ public sealed class ObjectsMapper : IObjectsMapper
         Func<TSource, TDestination> rule)
     {
         return sources?.Select(rule).ToArray();
+    }
+
+    private static EndpointParameterModel ToEndpointParameterModel(EndpointParameter parameter)
+    {
+        ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
+
+        return new EndpointParameterModel()
+        {
+            Name = parameter.Name,
+            Notes = parameter.Notes,
+            In = parameter.In,
+            DataType = parameter.DataType,
+            CreatedAtUtc = parameter.CreatedAtUtc,
+        };
     }
 }
