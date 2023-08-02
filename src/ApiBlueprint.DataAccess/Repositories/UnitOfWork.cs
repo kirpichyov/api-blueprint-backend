@@ -16,6 +16,7 @@ public sealed class UnitOfWork : IUnitOfWork, IDisposable
 	private IUserRepository _userRepository;
 	private IRefreshTokenRepository _refreshTokenRepository;
 	private IProjectRepository _projectRepository;
+	private IEndpointRepository _endpointRepository;
 
 	public UnitOfWork(IServiceProvider serviceProvider)
     {
@@ -27,6 +28,7 @@ public sealed class UnitOfWork : IUnitOfWork, IDisposable
 	public IUserRepository Users => _userRepository ??= GetService<IUserRepository>();
 	public IRefreshTokenRepository RefreshTokens => _refreshTokenRepository ??= GetService<IRefreshTokenRepository>();
 	public IProjectRepository Projects => _projectRepository ??= GetService<IProjectRepository>();
+	public IEndpointRepository Endpoints => _endpointRepository ??= GetService<IEndpointRepository>();
 
 	public async Task CommitTransactionAsync(Action action)
 	{

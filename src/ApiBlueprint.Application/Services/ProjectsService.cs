@@ -65,7 +65,7 @@ public sealed class ProjectsService : IProjectsService
     public async Task<OneOf<ProjectSummaryResponse, ResourceNotFound>> GetAsync(Guid projectId)
     {
         var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false);
-        if (project is null || !project.CanEdit(_jwtTokenReader.GetUserId()))
+        if (project is null || !project.HasAccess(_jwtTokenReader.GetUserId()))
         {
             return new ResourceNotFound(nameof(Project));
         }
@@ -79,12 +79,19 @@ public sealed class ProjectsService : IProjectsService
         return _mapper.MapCollection(projects, _mapper.ToProjectSummaryResponse);
     }
 
-    public async Task<OneOf<Success, ResourceNotFound>> DeleteAsync(Guid projectId)
+    public async Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid projectId)
     {
+        var userId = _jwtTokenReader.GetUserId();
+
         var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
-        if (project is null || !project.CanEdit(_jwtTokenReader.GetUserId()))
+        if (project is null || !project.HasAccess(userId))
         {
             return new ResourceNotFound(nameof(Project));
+        }
+
+        if (!project.CanEdit(userId))
+        {
+            return new FlowValidationFailed("Access level is low.");
         }
         
         _unitOfWork.Projects.Remove(project);
@@ -93,7 +100,7 @@ public sealed class ProjectsService : IProjectsService
         return default(Success);
     }
 
-    public async Task<OneOf<CreatedFolderResponse, ModelValidationFailed, ResourceNotFound>> CreateFolderAsync(
+    public async Task<OneOf<FolderResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
         Guid projectId,
         CreateFolderRequest request)
     {
@@ -106,29 +113,38 @@ public sealed class ProjectsService : IProjectsService
         var userId = _jwtTokenReader.GetUserId();
         var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
 
-        if (project is null || !project.CanEdit(userId))
+        if (project is null || !project.HasAccess(userId))
         {
             return new ResourceNotFound(nameof(Project));
         }
 
-        project.AddFolder(request.Name);
+        if (!project.CanEdit(userId))
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
+
+        var folder = project.AddFolder(request.Name);
         await _unitOfWork.CommitAsync();
 
-        return new CreatedFolderResponse()
-        {
-            Id = project.Id,
-        };
+        return _mapper.ToFolderResponse(folder);
     }
 
-    public async Task<OneOf<Success, ResourceNotFound>> DeleteFolderAsync(Guid projectId, Guid folderId)
+    public async Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteFolderAsync(Guid folderId)
     {
-        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
-        if (project is null || !project.CanEdit(_jwtTokenReader.GetUserId()))
+        var userId = _jwtTokenReader.GetUserId();
+        
+        var folder = await _unitOfWork.Projects.TryGetFolder(folderId, withTracking: true);
+        if (folder is null || !folder.Project.HasAccess(_jwtTokenReader.GetUserId()))
         {
             return new ResourceNotFound(nameof(Project));
         }
+        
+        if (!folder.Project.CanEdit(userId))
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
 
-        var isFolderRemoved = project.TryRemoveFolder(folderId);
+        var isFolderRemoved = folder.Project.TryRemoveFolder(folderId);
         if (!isFolderRemoved)
         {
             return new ResourceNotFound("Folder");
@@ -141,8 +157,10 @@ public sealed class ProjectsService : IProjectsService
 
     public async Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId)
     {
+        var userId = _jwtTokenReader.GetUserId();
+        
         var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false);
-        if (project is null || !project.CanEdit(_jwtTokenReader.GetUserId()))
+        if (project is null || !project.HasAccess(userId))
         {
             return new ResourceNotFound(nameof(Project));
         }

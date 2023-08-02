@@ -21,4 +21,9 @@ public static class ResultsExtensions
         var errorMessage = $"{result.ResourceName} is not found.";
         return new ApiErrorResponse(ExceptionsInfo.Identifiers.ResourceNotFound, new ApiErrorResponseNode(null, errorMessage));
     }
+
+    public static ApiErrorResponse ToApiErrorResponse(this FlowValidationFailed result)
+    {
+        return new ApiErrorResponse(ExceptionsInfo.Identifiers.ValidationFailed, new ApiErrorResponseNode(null, result.Message));
+    }
 }

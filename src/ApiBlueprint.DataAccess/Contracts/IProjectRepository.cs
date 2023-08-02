@@ -8,4 +8,5 @@ public interface IProjectRepository : IRepositoryBase<Project>
 {
     Task<Project[]> GetAllForUser(Guid userId, bool withTracking);
     Task<Project> TryGet(Guid id, bool withTracking);
+    Task<ProjectFolder> TryGetFolder(Guid folderId, bool withTracking);
 }

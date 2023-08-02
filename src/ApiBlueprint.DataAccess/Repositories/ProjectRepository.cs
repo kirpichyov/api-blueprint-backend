@@ -34,4 +34,14 @@ public sealed class ProjectRepository : RepositoryBase<Project>, IProjectReposit
             .Include(project => project.ProjectFolders)
             .FirstOrDefaultAsync(project => project.Id == id);
     }
+
+    public Task<ProjectFolder> TryGetFolder(Guid folderId, bool withTracking)
+    {
+        return Context.ProjectFolders
+            .WithTracking(withTracking)
+            .Include(folder => folder.Project)
+                .ThenInclude(project => project.ProjectMembers)
+            .Include(folder => folder.Endpoints)
+            .FirstOrDefaultAsync(folder => folder.Id == folderId);
+    }
 }

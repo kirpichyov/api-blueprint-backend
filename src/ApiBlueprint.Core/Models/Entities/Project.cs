@@ -57,9 +57,12 @@ public sealed class Project : EntityBase<Guid>
         return true;
     }
 
-    public void AddFolder(string name)
+    public ProjectFolder AddFolder(string name)
     {
-        _projectFolders.Add(new ProjectFolder(name, this));
+        var folder = new ProjectFolder(name, this);
+        _projectFolders.Add(folder);
+
+        return folder;
     }
 
     public bool TryRemoveFolder(Guid id)
@@ -78,5 +81,10 @@ public sealed class Project : EntityBase<Guid>
     {
         return _projectMembers.Any(member => member.UserId == userId &&
                                              member.Role is ProjectMemberRole.Owner or ProjectMemberRole.Admin);
+    }
+    
+    public bool HasAccess(Guid userId)
+    {
+        return _projectMembers.Any(member => member.UserId == userId);
     }
 }

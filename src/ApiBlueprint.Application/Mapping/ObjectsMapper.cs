@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiBlueprint.Application.Models.Endpoints;
 using ApiBlueprint.Application.Models.Profile;
 using ApiBlueprint.Application.Models.Projects;
 using ApiBlueprint.Core.Models.Entities;
@@ -48,6 +49,32 @@ public sealed class ObjectsMapper : IObjectsMapper
             Id = folder.Id,
             Name = folder.Name,
             CreatedAtUtc = folder.CreatedAtUtc,
+        };
+    }
+
+    public EndpointResponse ToEndpointResponse(Endpoint endpoint)
+    {
+        ArgumentNullException.ThrowIfNull(endpoint, nameof(endpoint));
+
+        return new EndpointResponse()
+        {
+            Id = endpoint.Id,
+            Method = endpoint.Method,
+            Path = endpoint.Path,
+            Title = endpoint.Title,
+        };
+    }
+
+    public EndpointSummaryResponse ToEndpointSummaryResponse(Endpoint endpoint)
+    {
+        ArgumentNullException.ThrowIfNull(endpoint, nameof(endpoint));
+
+        return new EndpointSummaryResponse()
+        {
+            Id = endpoint.Id,
+            Method = endpoint.Method,
+            Path = endpoint.Path,
+            Title = endpoint.Title,
         };
     }
 

@@ -13,12 +13,13 @@ public interface IProjectsService
     Task<OneOf<ProjectSummaryResponse, ModelValidationFailed>> CreateAsync(CreateProjectRequest request);
     Task<OneOf<ProjectSummaryResponse, ResourceNotFound>> GetAsync(Guid projectId);
     Task<IReadOnlyCollection<ProjectSummaryResponse>> GetAllForUserAsync();
-    Task<OneOf<Success, ResourceNotFound>> DeleteAsync(Guid projectId);
+    Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid projectId);
 
-    Task<OneOf<CreatedFolderResponse, ModelValidationFailed, ResourceNotFound>> CreateFolderAsync(
+    Task<OneOf<FolderResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
         Guid projectId,
         CreateFolderRequest request);
 
-    Task<OneOf<Success, ResourceNotFound>> DeleteFolderAsync(Guid projectId, Guid folderId);
+    Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteFolderAsync(Guid folderId);
+    
     Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId);
 }

@@ -8,6 +8,7 @@ public interface IUnitOfWork
     IRefreshTokenRepository RefreshTokens { get; }
     IUserRepository Users { get; }
     IProjectRepository Projects { get; }
+    IEndpointRepository Endpoints { get; }
 
     public Task CommitTransactionAsync(Action action);
     public Task CommitTransactionAsync(Func<Task> action);
