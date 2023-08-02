@@ -20,12 +20,17 @@ public sealed class ProjectFolder : EntityBase<Guid>
     {
     }
 
-    public string Name { get; }
+    public string Name { get; private set; }
     public Guid ProjectId { get; }
     public Project Project { get; }
     public DateTime CreatedAtUtc { get; }
     public IReadOnlyCollection<Endpoint> Endpoints => _endpoints;
 
+    public void SetName(string name)
+    {
+        Name = name;
+    }
+    
     public Result AddEndpoint(Endpoint endpoint)
     {
         if (endpoint.ProjectFolder != this)

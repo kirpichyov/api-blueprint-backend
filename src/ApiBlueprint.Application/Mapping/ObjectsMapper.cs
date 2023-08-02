@@ -40,11 +40,11 @@ public sealed class ObjectsMapper : IObjectsMapper
         };
     }
 
-    public FolderResponse ToFolderResponse(ProjectFolder folder)
+    public FolderSummaryResponse ToFolderSummaryResponse(ProjectFolder folder)
     {
         ArgumentNullException.ThrowIfNull(folder, nameof(folder));
 
-        return new FolderResponse()
+        return new FolderSummaryResponse()
         {
             Id = folder.Id,
             Name = folder.Name,

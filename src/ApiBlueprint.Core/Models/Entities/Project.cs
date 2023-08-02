@@ -26,14 +26,32 @@ public sealed class Project : EntityBase<Guid>
     {
     }
 
-    public string Name { get; init; }
-    public string Description { get; init; }
-    public string ImageUrl { get; init; }
-    public DateTime CreatedAtUtc { get; init; }
-    public DateTime UpdatedAtUtc { get; init; }
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public string ImageUrl { get; private set; }
+    public DateTime CreatedAtUtc { get; }
+    public DateTime UpdatedAtUtc { get; private set; }
     public IReadOnlyCollection<ProjectMember> ProjectMembers => _projectMembers;
     public IReadOnlyCollection<ProjectFolder> ProjectFolders => _projectFolders;
 
+    public void SetName(string name)
+    {
+        Name = name;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+    
+    public void SetDescription(string description)
+    {
+        Description = description;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+    
+    public void SetImageUrl(string url)
+    {
+        ImageUrl = url;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+    
     public Result<bool> TryAddAdmin(User user)
     {
         return TryAddMember(user, ProjectMemberRole.Admin);

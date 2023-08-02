@@ -25,7 +25,7 @@ public sealed class FoldersController : ApiControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(typeof(FolderResponse), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(FolderSummaryResponse), StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteFolder([FromRoute(Name = "id")] Guid folderId)
     {
@@ -33,6 +33,19 @@ public sealed class FoldersController : ApiControllerBase
 
         return result.Match<IActionResult>(
             response => NoContent(),
+            notFound => NotFound(notFound.ToApiErrorResponse()),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
+    }
+    
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(FolderSummaryResponse), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateFolder([FromRoute(Name = "id")] Guid folderId, [FromBody] UpdateFolderRequest request)
+    {
+        var result = await _projectsService.UpdateFolderAsync(folderId, request);
+
+        return result.Match<IActionResult>(
+            response => Ok(response),
             notFound => NotFound(notFound.ToApiErrorResponse()),
             validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
     }

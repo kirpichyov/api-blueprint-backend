@@ -52,8 +52,8 @@ public sealed class ProjectsService : IProjectsService
         }
         
         var currentUser = await _unitOfWork.Users.TryGet(_jwtTokenReader.GetUserId(), withTracking: true);
-        
-        var imageUrl = _imageGenerationOptions.ProjectImageProviderUrl.Replace("{uniqueId}", Guid.NewGuid().ToString());
+
+        var imageUrl = GenerateProjectImageUrl();
         var project = new Project(request.Name, request.Description, imageUrl, currentUser);
 
         _unitOfWork.Projects.Add(project);
@@ -79,6 +79,35 @@ public sealed class ProjectsService : IProjectsService
         return _mapper.MapCollection(projects, _mapper.ToProjectSummaryResponse);
     }
 
+    public async Task<OneOf<ProjectSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateAsync(Guid projectId, UpdateProjectRequest request)
+    {
+        var userId = _jwtTokenReader.GetUserId();
+
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
+        if (project is null || !project.HasAccess(userId))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+
+        if (!project.CanEdit(userId))
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
+
+        project.SetName(request.Name);
+        project.SetDescription(request.Description);
+
+        if (request.RegenerateImage)
+        {
+            var newImageUrl = GenerateProjectImageUrl();
+            project.SetImageUrl(newImageUrl);
+        }
+        
+        await _unitOfWork.CommitAsync();
+
+        return _mapper.ToProjectSummaryResponse(project);
+    }
+
     public async Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid projectId)
     {
         var userId = _jwtTokenReader.GetUserId();
@@ -100,7 +129,7 @@ public sealed class ProjectsService : IProjectsService
         return default(Success);
     }
 
-    public async Task<OneOf<FolderResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
+    public async Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
         Guid projectId,
         CreateFolderRequest request)
     {
@@ -126,7 +155,30 @@ public sealed class ProjectsService : IProjectsService
         var folder = project.AddFolder(request.Name);
         await _unitOfWork.CommitAsync();
 
-        return _mapper.ToFolderResponse(folder);
+        return _mapper.ToFolderSummaryResponse(folder);
+    }
+
+    public async Task<OneOf<FolderSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(
+        Guid folderId,
+        UpdateFolderRequest request)
+    {
+        var userId = _jwtTokenReader.GetUserId();
+        
+        var folder = await _unitOfWork.Projects.TryGetFolder(folderId, withTracking: true);
+        if (folder is null || !folder.Project.HasAccess(_jwtTokenReader.GetUserId()))
+        {
+            return new ResourceNotFound(nameof(Project));
+        }
+        
+        if (!folder.Project.CanEdit(userId))
+        {
+            return new FlowValidationFailed("Access level is low.");
+        }
+
+        folder.SetName(request.Name);
+        await _unitOfWork.CommitAsync();
+
+        return _mapper.ToFolderSummaryResponse(folder);
     }
 
     public async Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteFolderAsync(Guid folderId)
@@ -155,7 +207,7 @@ public sealed class ProjectsService : IProjectsService
         return default(Success);
     }
 
-    public async Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId)
+    public async Task<OneOf<IReadOnlyCollection<FolderSummaryResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId)
     {
         var userId = _jwtTokenReader.GetUserId();
         
@@ -165,6 +217,11 @@ public sealed class ProjectsService : IProjectsService
             return new ResourceNotFound(nameof(Project));
         }
 
-        return project.ProjectFolders.Select(_mapper.ToFolderResponse).ToArray();
+        return project.ProjectFolders.Select(_mapper.ToFolderSummaryResponse).ToArray();
     }
+
+    private string GenerateProjectImageUrl()
+    {
+        return _imageGenerationOptions.ProjectImageProviderUrl.Replace("{uniqueId}", Guid.NewGuid().ToString());
+    } 
 }

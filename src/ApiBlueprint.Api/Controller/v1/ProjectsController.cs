@@ -49,6 +49,20 @@ public sealed class ProjectsController : ApiControllerBase
             summary => Ok(summary),
             notFound => NotFound(notFound.ToApiErrorResponse()));
     }
+    
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Update(
+        [FromRoute(Name = "id")] Guid projectId,
+        [FromBody] UpdateProjectRequest request)
+    {
+        var result = await _projectsService.UpdateAsync(projectId, request);
+
+        return result.Match<IActionResult>(
+            response => Ok(response),
+            notFound => NotFound(notFound.ToApiErrorResponse()),
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse));
+    }
 
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -63,7 +77,7 @@ public sealed class ProjectsController : ApiControllerBase
     }
 
     [HttpPost("{id:guid}/folders")]
-    [ProducesResponseType(typeof(FolderResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(FolderSummaryResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateFolder(
@@ -80,7 +94,7 @@ public sealed class ProjectsController : ApiControllerBase
     }
     
     [HttpGet("{id:guid}/folders")]
-    [ProducesResponseType(typeof(FolderResponse[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FolderSummaryResponse[]), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFolders([FromRoute(Name = "id")] Guid projectId)
     {
