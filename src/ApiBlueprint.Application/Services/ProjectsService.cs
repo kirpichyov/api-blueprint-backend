@@ -130,6 +130,32 @@ public sealed class ProjectsService : IProjectsService
         return default(Success);
     }
 
+    public async Task<ProjectAccessInfoResponse> GetProjectAccessInfoAsync(Guid projectId)
+    {
+        var userId = _jwtTokenReader.GetUserId();
+        var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false);
+
+        if (project is null || !project.HasAccess(userId))
+        {
+            return new ProjectAccessInfoResponse()
+            {
+                UserId = userId,
+                HasAccess = false,
+            };
+        }
+
+        var userAsMember = project.ProjectMembers.First(member => member.UserId == userId);
+
+        return new ProjectAccessInfoResponse()
+        {
+            UserId = userId,
+            MemberId = userAsMember.Id,
+            HasAccess = true,
+            CanEdit = project.CanEdit(userId),
+            Role = userAsMember.Role,
+        };
+    }
+
     public async Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
         Guid projectId,
         CreateFolderRequest request)

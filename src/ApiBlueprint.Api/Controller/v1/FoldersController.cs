@@ -25,7 +25,7 @@ public sealed class FoldersController : ApiControllerBase
     }
 
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(typeof(FolderSummaryResponse), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteFolder([FromRoute(Name = "id")] Guid folderId)
     {

@@ -15,6 +15,7 @@ public interface IProjectsService
     Task<IReadOnlyCollection<ProjectSummaryResponse>> GetAllForUserAsync();
     Task<OneOf<ProjectSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateAsync(Guid projectId, UpdateProjectRequest request);
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid projectId);
+    Task<ProjectAccessInfoResponse> GetProjectAccessInfoAsync(Guid projectId);
 
     Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> CreateFolderAsync(
         Guid projectId,

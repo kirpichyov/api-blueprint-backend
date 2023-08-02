@@ -104,4 +104,12 @@ public sealed class ProjectsController : ApiControllerBase
             response => Ok(response),
             notFound => NotFound(notFound.ToApiErrorResponse()));
     }
+
+    [HttpGet("{id:guid}/access-info")]
+    [ProducesResponseType(typeof(ProjectAccessInfoResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAccessInfo([FromRoute(Name = "id")] Guid projectId)
+    {
+        var result = await _projectsService.GetProjectAccessInfoAsync(projectId);
+        return Ok(result);
+    }
 }
