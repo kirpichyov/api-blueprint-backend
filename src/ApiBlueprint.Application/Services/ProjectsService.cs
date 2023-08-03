@@ -8,6 +8,7 @@ using ApiBlueprint.Application.Extensions;
 using ApiBlueprint.Application.Mapping;
 using ApiBlueprint.Application.Models.ProjectMembers;
 using ApiBlueprint.Application.Models.Projects;
+using ApiBlueprint.Core.Constants;
 using ApiBlueprint.Core.Models.Entities;
 using ApiBlueprint.Core.Models.Enums;
 using ApiBlueprint.Core.Options;
@@ -100,7 +101,7 @@ public sealed class ProjectsService : IProjectsService
 
         if (!project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         project.SetName(request.Name);
@@ -129,7 +130,7 @@ public sealed class ProjectsService : IProjectsService
 
         if (!project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
         
         _unitOfWork.Projects.Remove(project);
@@ -184,7 +185,7 @@ public sealed class ProjectsService : IProjectsService
 
         if (!project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         var folder = project.AddFolder(request.Name);
@@ -213,7 +214,7 @@ public sealed class ProjectsService : IProjectsService
         
         if (!folder.Project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         folder.SetName(request.Name);
@@ -234,7 +235,7 @@ public sealed class ProjectsService : IProjectsService
         
         if (!folder.Project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         var isFolderRemoved = folder.Project.TryRemoveFolder(folderId);
@@ -294,7 +295,7 @@ public sealed class ProjectsService : IProjectsService
         
         if (userAsMember.Role is not ProjectMemberRole.Owner)
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         var userToAdd = await _unitOfWork.Users.TryGet(request.UserEmail, withTracking: true);
@@ -335,7 +336,7 @@ public sealed class ProjectsService : IProjectsService
         
         if (userAsMember.Role is not ProjectMemberRole.Owner)
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         if (memberToRemove is null)

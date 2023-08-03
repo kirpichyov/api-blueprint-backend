@@ -7,6 +7,7 @@ using ApiBlueprint.Application.Contracts.Results.Common;
 using ApiBlueprint.Application.Extensions;
 using ApiBlueprint.Application.Mapping;
 using ApiBlueprint.Application.Models.Endpoints;
+using ApiBlueprint.Core.Constants;
 using ApiBlueprint.Core.Models.Entities;
 using ApiBlueprint.Core.Models.ValueObjects;
 using ApiBlueprint.DataAccess.Contracts;
@@ -62,7 +63,7 @@ public sealed class EndpointsService : IEndpointsService
 
         if (!folder.Project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         var endpoint = new Endpoint(
@@ -95,7 +96,7 @@ public sealed class EndpointsService : IEndpointsService
 
         if (!endpoint.ProjectFolder.Project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         endpoint.SetTitle(request.Title);
@@ -128,7 +129,7 @@ public sealed class EndpointsService : IEndpointsService
 
         if (!endpoint.ProjectFolder.Project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         var parameters = request.Parameters
@@ -189,7 +190,7 @@ public sealed class EndpointsService : IEndpointsService
 
         if (!endpoint.ProjectFolder.Project.CanEdit(userId))
         {
-            return new FlowValidationFailed("Access level is low.");
+            return new FlowValidationFailed(ErrorMessages.InsufficientRights);
         }
 
         _unitOfWork.Endpoints.Remove(endpoint);
