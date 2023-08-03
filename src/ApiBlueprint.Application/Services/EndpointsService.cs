@@ -164,7 +164,7 @@ public sealed class EndpointsService : IEndpointsService
         return _mapper.ToEndpointResponse(endpoint);
     }
 
-    public async Task<OneOf<EndpointResponse, ResourceNotFound, FlowValidationFailed>> GetAsync(Guid endpointId)
+    public async Task<OneOf<EndpointResponse, ResourceNotFound>> GetAsync(Guid endpointId)
     {
         var userId = _jwtTokenReader.GetUserId();
         
@@ -172,11 +172,6 @@ public sealed class EndpointsService : IEndpointsService
         if (endpoint is null || !endpoint.ProjectFolder.Project.HasAccess(userId))
         {
             return new ResourceNotFound(nameof(Endpoint));
-        }
-
-        if (!endpoint.ProjectFolder.Project.CanEdit(userId))
-        {
-            return new FlowValidationFailed("Access level is low.");
         }
 
         return _mapper.ToEndpointResponse(endpoint);

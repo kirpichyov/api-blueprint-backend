@@ -29,8 +29,7 @@ public sealed class EndpointsController : ApiControllerBase
 
         return result.Match<IActionResult>(
             summary => Ok(summary),
-            notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
+            notFound => NotFound(notFound.ToApiErrorResponse()));
     }
 
     [HttpDelete("{id:guid}")]

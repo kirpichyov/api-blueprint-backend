@@ -23,6 +23,6 @@ public interface IEndpointsService
         UpdateEndpointContractRequest request,
         HttpDirection httpDirection);
 
-    Task<OneOf<EndpointResponse, ResourceNotFound, FlowValidationFailed>> GetAsync(Guid endpointId);
+    Task<OneOf<EndpointResponse, ResourceNotFound>> GetAsync(Guid endpointId);
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid endpointId);
 }
