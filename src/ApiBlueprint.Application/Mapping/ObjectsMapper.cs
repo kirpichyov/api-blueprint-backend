@@ -147,7 +147,7 @@ public sealed class ObjectsMapper : IObjectsMapper
                 .ToArray(),
             ContentType = contract.ContentType,
             StatusCode = contract.StatusCode,
-            ContentJson = contract.GetBodyObject(),
+            ContentJson = contract.Body,
         };
     }
 }

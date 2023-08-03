@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace ApiBlueprint.Core.Models.ValueObjects;
 
@@ -10,17 +9,17 @@ public sealed class EndpointContract
     }
 
     [JsonConstructor]
-    public EndpointContract(EndpointParameter[] parameters, string bodyJson, string contentType, int? statusCode)
+    public EndpointContract(EndpointParameter[] parameters, object body, string contentType, int? statusCode)
     {
         Parameters = parameters;
-        BodyJson = bodyJson;
+        Body = body;
         ContentType = contentType;
         StatusCode = statusCode;
     }
     
     public EndpointParameter[] Parameters { get; private set; }
     public string ContentType { get; private set; }
-    public string BodyJson { get; private set; }
+    public object Body { get; private set; }
     public int? StatusCode { get; private set; }
 
     public void SetParameters(EndpointParameter[] parameters)
@@ -28,12 +27,10 @@ public sealed class EndpointContract
         Parameters = parameters;
     }
     
-    public void SetBody(string contentType, int? statusCode, object content)
+    public void SetBody(string contentType, int? statusCode, object body)
     {
         ContentType = contentType;
         StatusCode = statusCode;
-        BodyJson = JsonSerializer.Serialize(content);
+        Body = body;
     }
-
-    public object GetBodyObject() => JsonSerializer.Deserialize<object>(BodyJson);
 }
