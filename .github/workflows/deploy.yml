@@ -1,0 +1,48 @@
+name: Deploy to Heroku
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  migrate:
+    name: "Restore and Migrate"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 7.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: src/ApiBlueprint.Api
+      - name: "Install EF CLI"
+        run: dotnet tool install --global dotnet-ef
+      - name: "Update database"
+        working-directory: src/ApiBlueprint.Api
+        run: dotnet ef database update --connection "${{secrets.DBCONTEXT_STRING}}" --project "/home/runner/work/api-blueprint-backend/api-blueprint-backend/src/ApiBlueprint.DataAccess/ApiBlueprint.DataAccess.csproj"
+  deploy:
+    name: "Create docker image and deploy to Heroku"
+    needs: [migrate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          docker_heroku_process_type: web
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: api-blueprint-backend
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          justlogin: true
+
+      - name: "Login to heroku registry"
+        run: heroku container:login
+
+      - name: "Build and push to heroku registry"
+        run: heroku container:push web --app api-blueprint-backend
+
+      - name: "Releases the container"
+        run: heroku container:release web --app api-blueprint-backend
