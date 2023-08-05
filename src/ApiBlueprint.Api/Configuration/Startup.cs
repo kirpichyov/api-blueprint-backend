@@ -21,6 +21,7 @@ using ApiBlueprint.Application;
 using ApiBlueprint.Application.Validators.Auth;
 using ApiBlueprint.Core.Options;
 using ApiBlueprint.DataAccess;
+using Microsoft.Extensions.Hosting;
 
 namespace ApiBlueprint.Api.Configuration;
 
@@ -68,8 +69,16 @@ public class Startup
 				policy =>
 				{
 					var authOptions = _configuration.GetSection(nameof(AuthOptions)).Get<AuthOptions>();
-			
-					policy.WithOrigins(authOptions.AllowedOrigins);
+
+					if (_environment.IsProduction())
+					{
+						policy.WithOrigins(authOptions.AllowedOrigins);
+					}
+					else
+					{
+						policy.AllowAnyOrigin();
+					}
+
 					policy.AllowAnyHeader();
 					policy.AllowAnyMethod();
 				});

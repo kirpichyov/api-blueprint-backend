@@ -24,12 +24,24 @@ jobs:
       - name: "Update database"
         working-directory: src/ApiBlueprint.Api
         run: dotnet ef database update --connection "${{secrets.DBCONTEXT_STRING}}" --project "/home/runner/work/api-blueprint-backend/api-blueprint-backend/src/ApiBlueprint.DataAccess/ApiBlueprint.DataAccess.csproj"
+
   deploy:
     name: "Create docker image and deploy to Heroku"
     needs: [migrate]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.4
+
+      - uses: actions/checkout@v2
+
+      - name: "Substitute appsettings.json"
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: 'src/ApiBlueprint.Api/appsettings.json'
+        env:
+          ConnectionStrings.DatabaseContext: ${{ secrets.DBCONTEXT_STRING }}
+          AuthOptions.Secret: ${{ secrets.JWT_SECRET }}
+    
+      #- uses: actions/checkout@v2.3.4
       - uses: akhileshns/heroku-deploy@v3.12.12
         with:
           docker_heroku_process_type: web
