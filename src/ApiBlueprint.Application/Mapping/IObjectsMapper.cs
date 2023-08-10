@@ -12,7 +12,6 @@ public interface IObjectsMapper
 {
     CurrentUserProfileResponse ToCurrentUserProfileResponse(User user);
     ProjectSummaryResponse ToProjectSummaryResponse(Project project);
-    FolderSummaryResponse ToFolderSummaryResponse(ProjectFolder folder);
     FolderResponse ToFolderResponse(ProjectFolder folder);
     EndpointResponse ToEndpointResponse(Endpoint endpoint);
     ProjectMemberResponse ToProjectMemberResponse(ProjectMember member);

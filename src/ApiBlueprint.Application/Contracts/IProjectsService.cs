@@ -22,7 +22,7 @@ public interface IProjectsService
         Guid projectId,
         CreateFolderRequest request);
 
-    Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(Guid folderId, UpdateFolderRequest request);
+    Task<OneOf<FolderResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(Guid folderId, UpdateFolderRequest request);
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteFolderAsync(Guid folderId);
     Task<OneOf<IReadOnlyCollection<FolderResponse>, ResourceNotFound>> GetFoldersAsync(Guid projectId);
 

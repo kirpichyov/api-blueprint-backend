@@ -43,18 +43,6 @@ public sealed class ObjectsMapper : IObjectsMapper
         };
     }
 
-    public FolderSummaryResponse ToFolderSummaryResponse(ProjectFolder folder)
-    {
-        ArgumentNullException.ThrowIfNull(folder, nameof(folder));
-
-        return new FolderSummaryResponse()
-        {
-            Id = folder.Id,
-            Name = folder.Name,
-            CreatedAtUtc = folder.CreatedAtUtc,
-        };
-    }
-
     public FolderResponse ToFolderResponse(ProjectFolder folder)
     {
         ArgumentNullException.ThrowIfNull(folder, nameof(folder));

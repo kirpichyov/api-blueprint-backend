@@ -39,7 +39,7 @@ public sealed class FoldersController : ApiControllerBase
     }
     
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(FolderSummaryResponse), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(FolderResponse), StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateFolder([FromRoute(Name = "id")] Guid folderId, [FromBody] UpdateFolderRequest request)
     {

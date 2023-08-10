@@ -194,7 +194,7 @@ public sealed class ProjectsService : IProjectsService
         return _mapper.ToFolderResponse(folder);
     }
 
-    public async Task<OneOf<FolderSummaryResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(
+    public async Task<OneOf<FolderResponse, ModelValidationFailed, ResourceNotFound, FlowValidationFailed>> UpdateFolderAsync(
         Guid folderId,
         UpdateFolderRequest request)
     {
@@ -220,7 +220,7 @@ public sealed class ProjectsService : IProjectsService
         folder.SetName(request.Name);
         await _unitOfWork.CommitAsync();
 
-        return _mapper.ToFolderSummaryResponse(folder);
+        return _mapper.ToFolderResponse(folder);
     }
 
     public async Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteFolderAsync(Guid folderId)
