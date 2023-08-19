@@ -11,4 +11,5 @@ public sealed record ProjectSummaryResponse
     public DateTime CreatedAtUtc { get; init; }
     public DateTime UpdatedAtUtc { get; init; }
     public int MembersCount { get; init; }
+    public ProjectAccessInfoResponse AccessInfo { get; init; }
 }
