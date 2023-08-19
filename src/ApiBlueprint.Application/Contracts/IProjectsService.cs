@@ -14,7 +14,7 @@ public interface IProjectsService
     Task<OneOf<ProjectSummaryResponse, ModelValidationFailed>> CreateAsync(CreateProjectRequest request);
     Task<OneOf<ProjectSummaryResponse, ResourceNotFound>> GetAsync(Guid projectId);
     Task<IReadOnlyCollection<ProjectSummaryResponse>> GetAllForUserAsync();
-    Task<OneOf<ProjectSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateAsync(Guid projectId, UpdateProjectRequest request);
+    Task<OneOf<ProjectSummaryResponse, ResourceNotFound, ModelValidationFailed, FlowValidationFailed>> UpdateAsync(Guid projectId, UpdateProjectRequest request);
     Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid projectId);
     Task<ProjectAccessInfoResponse> GetProjectAccessInfoAsync(Guid projectId);
 

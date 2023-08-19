@@ -62,7 +62,8 @@ public sealed class ProjectsController : ApiControllerBase
         return result.Match<IActionResult>(
             response => Ok(response),
             notFound => NotFound(notFound.ToApiErrorResponse()),
-            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()));
+            validationFailed => BadRequest(validationFailed.ToApiErrorResponse()),
+            flowValidationFailed => BadRequest(flowValidationFailed.ToApiErrorResponse()));
     }
 
     [HttpDelete("{id:guid}")]

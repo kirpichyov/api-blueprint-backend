@@ -26,6 +26,7 @@ public sealed class ProjectsService : IProjectsService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IValidator<CreateProjectRequest> _createValidator;
+    private readonly IValidator<UpdateProjectRequest> _updateValidator;
     private readonly IValidator<CreateFolderRequest> _createFolderValidator;
     private readonly IValidator<UpdateFolderRequest> _updateFolderValidator;
     private readonly IValidator<AddProjectMemberRequest> _addMemberValidator;
@@ -36,6 +37,7 @@ public sealed class ProjectsService : IProjectsService
     public ProjectsService(
         IUnitOfWork unitOfWork,
         IValidator<CreateProjectRequest> createValidator,
+        IValidator<UpdateProjectRequest> updateValidator,
         IValidator<CreateFolderRequest> createFolderValidator,
         IValidator<UpdateFolderRequest> updateFolderValidator,
         IValidator<AddProjectMemberRequest> addMemberValidator,
@@ -45,6 +47,7 @@ public sealed class ProjectsService : IProjectsService
     {
         _unitOfWork = unitOfWork;
         _createValidator = createValidator;
+        _updateValidator = updateValidator;
         _createFolderValidator = createFolderValidator;
         _updateFolderValidator = updateFolderValidator;
         _addMemberValidator = addMemberValidator;
@@ -95,8 +98,14 @@ public sealed class ProjectsService : IProjectsService
         return _mapper.MapCollection(projects, project => _mapper.ToProjectSummaryResponse(project, userId));
     }
 
-    public async Task<OneOf<ProjectSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateAsync(Guid projectId, UpdateProjectRequest request)
+    public async Task<OneOf<ProjectSummaryResponse, ResourceNotFound, ModelValidationFailed, FlowValidationFailed>> UpdateAsync(Guid projectId, UpdateProjectRequest request)
     {
+        var validationResult = await _updateValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return new ModelValidationFailed(validationResult.Errors);
+        }
+        
         var userId = _jwtTokenReader.GetUserId();
 
         var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: true);
