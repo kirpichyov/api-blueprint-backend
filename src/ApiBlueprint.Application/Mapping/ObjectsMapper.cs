@@ -27,10 +27,24 @@ public sealed class ObjectsMapper : IObjectsMapper
         };
     }
 
-    public ProjectSummaryResponse ToProjectSummaryResponse(Project project)
+    public ProjectSummaryResponse ToProjectSummaryResponse(Project project, Guid currentUserId)
     {
         ArgumentNullException.ThrowIfNull(project, nameof(project));
 
+        ProjectAccessInfoResponse MapAccessInfo()
+        {
+            var member = project.ProjectMembers.First(member => member.UserId == currentUserId);
+
+            return new ProjectAccessInfoResponse()
+            {
+                UserId = member.UserId,
+                MemberId = member.Id,
+                Role = member.Role,
+                HasAccess = true,
+                CanEdit = project.CanEdit(member.UserId),
+            };
+        }
+        
         return new ProjectSummaryResponse()
         {
             Id = project.Id,
@@ -40,6 +54,7 @@ public sealed class ObjectsMapper : IObjectsMapper
             CreatedAtUtc = project.CreatedAtUtc,
             UpdatedAtUtc = project.UpdatedAtUtc,
             MembersCount = project.ProjectMembers.Count,
+            AccessInfo = MapAccessInfo(),
         };
     }
 

@@ -11,7 +11,7 @@ namespace ApiBlueprint.Application.Mapping;
 public interface IObjectsMapper
 {
     CurrentUserProfileResponse ToCurrentUserProfileResponse(User user);
-    ProjectSummaryResponse ToProjectSummaryResponse(Project project);
+    ProjectSummaryResponse ToProjectSummaryResponse(Project project, Guid currentUserId);
     FolderResponse ToFolderResponse(ProjectFolder folder);
     EndpointResponse ToEndpointResponse(Endpoint endpoint);
     ProjectMemberResponse ToProjectMemberResponse(ProjectMember member);

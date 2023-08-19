@@ -55,6 +55,8 @@ public sealed class ProjectsService : IProjectsService
 
     public async Task<OneOf<ProjectSummaryResponse, ModelValidationFailed>> CreateAsync(CreateProjectRequest request)
     {
+        var userId = _jwtTokenReader.GetUserId();
+        
         var validationResult = await _createValidator.ValidateAsync(request);
         if (!validationResult.IsValid)
         {
@@ -69,24 +71,28 @@ public sealed class ProjectsService : IProjectsService
         _unitOfWork.Projects.Add(project);
         await _unitOfWork.CommitAsync();
 
-        return _mapper.ToProjectSummaryResponse(project);
+        return _mapper.ToProjectSummaryResponse(project, userId);
     }
 
     public async Task<OneOf<ProjectSummaryResponse, ResourceNotFound>> GetAsync(Guid projectId)
     {
+        var userId = _jwtTokenReader.GetUserId();
+        
         var project = await _unitOfWork.Projects.TryGet(projectId, withTracking: false);
-        if (project is null || !project.HasAccess(_jwtTokenReader.GetUserId()))
+        if (project is null || !project.HasAccess(userId))
         {
             return new ResourceNotFound(nameof(Project));
         }
         
-        return _mapper.ToProjectSummaryResponse(project);
+        return _mapper.ToProjectSummaryResponse(project, userId);
     }
 
     public async Task<IReadOnlyCollection<ProjectSummaryResponse>> GetAllForUserAsync()
     {
-        var projects = await _unitOfWork.Projects.GetAllForUser(_jwtTokenReader.GetUserId(), withTracking: false);
-        return _mapper.MapCollection(projects, _mapper.ToProjectSummaryResponse);
+        var userId = _jwtTokenReader.GetUserId();
+
+        var projects = await _unitOfWork.Projects.GetAllForUser(userId, withTracking: false);
+        return _mapper.MapCollection(projects, project => _mapper.ToProjectSummaryResponse(project, userId));
     }
 
     public async Task<OneOf<ProjectSummaryResponse, ResourceNotFound, FlowValidationFailed>> UpdateAsync(Guid projectId, UpdateProjectRequest request)
@@ -115,7 +121,7 @@ public sealed class ProjectsService : IProjectsService
         
         await _unitOfWork.CommitAsync();
 
-        return _mapper.ToProjectSummaryResponse(project);
+        return _mapper.ToProjectSummaryResponse(project, userId);
     }
 
     public async Task<OneOf<Success, ResourceNotFound, FlowValidationFailed>> DeleteAsync(Guid projectId)
