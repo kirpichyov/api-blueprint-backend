@@ -72,6 +72,7 @@ public sealed class ObjectsMapper : IObjectsMapper
                 .Select(endpoint => new FolderEndpointModel()
                 {
                     Id = endpoint.Id,
+                    FolderId = endpoint.ProjectFolderId,
                     Method = endpoint.Method,
                     Path = endpoint.Path,
                     Title = endpoint.Title,
@@ -90,6 +91,7 @@ public sealed class ObjectsMapper : IObjectsMapper
         return new EndpointResponse()
         {
             Id = endpoint.Id,
+            FolderId = endpoint.ProjectFolderId,
             Method = endpoint.Method,
             Path = endpoint.Path,
             Title = endpoint.Title,
