@@ -75,7 +75,7 @@ public sealed class Endpoint : EntityBase<Guid>
 
     private static EndpointContract GetDefaultContract(int? statusCode = null)
     {
-        var contract = new EndpointContract(Array.Empty<EndpointParameter>(), "{}", "application/json", statusCode);
+        var contract = new EndpointContract(Array.Empty<EndpointParameter>(), null, "application/json", statusCode);
         return contract;
     } 
 }
