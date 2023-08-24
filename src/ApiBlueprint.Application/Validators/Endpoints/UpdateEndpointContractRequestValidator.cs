@@ -19,7 +19,6 @@ public sealed class UpdateEndpointContractRequestValidator : AbstractValidator<U
             .LessThanOrEqualTo(599)
             .When(model => model.StatusCode.HasValue);
 
-        RuleFor(model => model.ContentJson)
-            .NotEmpty();
+        RuleFor(model => model.ContentJson);
     }
 }
