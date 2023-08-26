@@ -22,6 +22,7 @@ public sealed class ProjectRepository : RepositoryBase<Project>, IProjectReposit
         return Context.Projects
             .WithTracking(withTracking)
             .Include(project => project.ProjectMembers)
+            .ThenInclude(member => member.User)
             .Where(project => project.ProjectMembers.Any(member => member.UserId == userId))
             .OrderBy(project => project.CreatedAtUtc)
             .ToArrayAsync();
@@ -32,6 +33,7 @@ public sealed class ProjectRepository : RepositoryBase<Project>, IProjectReposit
         var queryBase = Context.Projects
             .WithTracking(withTracking)
             .Include(project => project.ProjectMembers)
+            .ThenInclude(member => member.User)
             .Include(project => project.ProjectFolders)
             .AsQueryable();
 
