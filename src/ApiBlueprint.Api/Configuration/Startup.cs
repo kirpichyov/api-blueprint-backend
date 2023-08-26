@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using FluentValidation;
 using Kirpichyov.FriendlyJwt.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +22,7 @@ using ApiBlueprint.Application;
 using ApiBlueprint.Application.Validators.Auth;
 using ApiBlueprint.Core.Options;
 using ApiBlueprint.DataAccess;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Hosting;
 
 namespace ApiBlueprint.Api.Configuration;
@@ -159,6 +161,24 @@ public class Startup
 		
 		app.UseAuthentication();
 		app.UseAuthorization();
+
+		app.UseRateLimiter(new RateLimiterOptions()
+		{
+			GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+				{
+					return RateLimitPartition.GetTokenBucketLimiter("TokenBased",
+						_ => new TokenBucketRateLimiterOptions()
+						{
+							TokenLimit = 10,
+							QueueProcessingOrder = QueueProcessingOrder.NewestFirst,
+							QueueLimit = 0,
+							ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+							TokensPerPeriod = 2,
+							AutoReplenishment = true,
+						});
+				}),
+			RejectionStatusCode = StatusCodes.Status429TooManyRequests,
+		});
 
 		app.UseEndpoints(endpoints =>
 		{
