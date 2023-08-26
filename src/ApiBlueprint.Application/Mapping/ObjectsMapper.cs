@@ -55,6 +55,7 @@ public sealed class ObjectsMapper : IObjectsMapper
             UpdatedAtUtc = project.UpdatedAtUtc,
             MembersCount = project.ProjectMembers.Count,
             AccessInfo = MapAccessInfo(),
+            Members = project.ProjectMembers.Select(ToProjectMemberResponse).ToArray(),
         };
     }
 
