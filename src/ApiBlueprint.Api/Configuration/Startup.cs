@@ -169,11 +169,11 @@ public class Startup
 					return RateLimitPartition.GetTokenBucketLimiter("TokenBased",
 						_ => new TokenBucketRateLimiterOptions()
 						{
-							TokenLimit = 10,
+							TokenLimit = 20,
 							QueueProcessingOrder = QueueProcessingOrder.NewestFirst,
 							QueueLimit = 0,
 							ReplenishmentPeriod = TimeSpan.FromSeconds(10),
-							TokensPerPeriod = 2,
+							TokensPerPeriod = 5,
 							AutoReplenishment = true,
 						});
 				}),
